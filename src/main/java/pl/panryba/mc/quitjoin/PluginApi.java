@@ -6,70 +6,58 @@ package pl.panryba.mc.quitjoin;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.bukkit.ChatColor;
 
 public class PluginApi {
 
     private final Object sync;
     
-    private Set<String> previousJoined;
-    private Set<String> previousQuitted;
-    private Set<String> joined;
-    private Set<String> quitted;
+    private Set<String> previous;
+    private Set<String> current;
     
     private final BroadcastOutput output;
+    private final LanguageStrings strings;
 
-    public PluginApi(BroadcastOutput output) {
-        this.output = output;
+    public PluginApi(BroadcastOutput output, LanguageStrings strings) {
+        this.strings = strings;
+        this.output = output;        
         this.sync = new Object();
-
-        this.joined = new HashSet<>();
-        this.previousJoined = new HashSet<>();
-
-        this.quitted = new HashSet<>();
-        this.previousQuitted = new HashSet<>();
+        this.previous = new HashSet<>();
+        this.current = new HashSet<>();
     }
 
     void broadcast() {
-        String joinedStr;
-        String quittedStr;
-
-        Set<String> joinDiff;
-        Set<String> quitDiff;
-
-        synchronized (sync) {
-            joinDiff = SetUtils.diff(this.joined, this.previousJoined);
-            this.previousJoined = this.joined;
-            this.joined = new HashSet<>();
+        Set<String> joined;
+        Set<String> left;
+        
+        synchronized(sync) {
+            joined = SetUtils.diff(current, previous);
+            left = SetUtils.diff(previous, current);
             
-            quitDiff = SetUtils.diff(this.quitted, this.previousQuitted);
-            this.previousQuitted = this.quitted;
-            this.quitted = new HashSet<>();
+            this.previous = this.current;
+            this.current = new HashSet<>();
         }
-
-        joinedStr = StringUtils.joinStrings(joinDiff);
-        quittedStr = StringUtils.joinStrings(quitDiff);
+       
+        String joinedStr = StringUtils.joinStrings(joined);
+        String leftStr = StringUtils.joinStrings(left);
 
         if (!joinedStr.isEmpty()) {
-            output.broadcast(ChatColor.GRAY + "dolaczyli: " + joinedStr);
+            output.broadcast(this.strings.getJoined(joinedStr));
         }
 
-        if (!quittedStr.isEmpty()) {
-            output.broadcast(ChatColor.GRAY + "wyszli: " + quittedStr);
+        if (!leftStr.isEmpty()) {
+            output.broadcast(this.strings.getLeft(leftStr));
         }
     }
 
     void joined(String name) {
         synchronized (sync) {
-            this.joined.add(name);
-            this.quitted.remove(name);
+            this.current.add(name);
         }
     }
 
-    void quit(String name) {
+    void left(String name) {
         synchronized (sync) {
-            this.quitted.add(name);
-            this.joined.remove(name);
+            this.current.remove(name);
         }
     }
 }
