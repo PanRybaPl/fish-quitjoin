@@ -22,7 +22,7 @@ public class LanguageStrings {
             template = this.defaults.getString(name);
         }
 
-        return template;
+        return ColorUtils.replaceColors(template);
     }
     
     public String getJoined(String joinedList) {

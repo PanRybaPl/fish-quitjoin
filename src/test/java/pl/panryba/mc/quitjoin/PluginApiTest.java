@@ -10,12 +10,17 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 
 /**
  *
  * @author Marcin
  */
-public class PluginApiTest {    
+public class PluginApiTest {
+    private VariableOutput output;
+    private final LanguageStrings strings;
+    private PluginApi api;
+    
     private class VariableOutput implements BroadcastOutput {
         private List<String> messages;
         
@@ -40,9 +45,8 @@ public class PluginApiTest {
             this.messages.clear();
         }
     }
-        
-    @Test
-    public void testEnterLeaveScenario() {
+    
+    public PluginApiTest() {
         FileConfiguration defaultConfig = new YamlConfiguration();
         defaultConfig.set("joined", "joined: %s");
         defaultConfig.set("left", "left: %s");
@@ -51,11 +55,17 @@ public class PluginApiTest {
         config.set("joined", "j: %s");
         config.set("left", "l: %s");
         
-        LanguageStrings strings = new LanguageStrings(config, defaultConfig);
+        this.strings = new LanguageStrings(config, defaultConfig);
+    }
+    
+    @Before
+    public void setUp() {
+        this.output = new VariableOutput();
+        this.api = new PluginApi(output, strings);
+    }
         
-        VariableOutput output = new VariableOutput();
-        PluginApi api = new PluginApi(output, strings);
-        
+    @Test
+    public void testEnterLeaveScenario() {
         api.joined("Test");        
         api.broadcast();
         assertTrue(output.contains("j: Test"));
@@ -65,14 +75,37 @@ public class PluginApiTest {
         api.broadcast();
         assertTrue(output.contains("l: Test"));
         output.clear();
-        
+    }
+    
+    @Test
+    public void TestNoTraffic() {
         api.broadcast();
         assertTrue(output.getMessages().isEmpty());
-        
+    }
+    
+    @Test
+    public void TestEnterLeaveOnSameSession() {
         api.joined("Test");
         api.left("Test");
         api.broadcast();
+        assertTrue(output.getMessages().isEmpty());
+    }
+    
+    public void TestNoTrafficAfterJoin() {
+        api.joined("Test");
+        api.broadcast();
+        output.clear();
+
+        api.broadcast();
+        assertTrue(output.getMessages().isEmpty());
+    }
+    
+    public void TestNoTrafficAfterLeave() {
+        api.left("Test");
+        api.broadcast();
+        output.clear();
         
+        api.broadcast();
         assertTrue(output.getMessages().isEmpty());
     }
 }

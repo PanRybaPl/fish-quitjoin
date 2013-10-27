@@ -33,8 +33,7 @@ public class PluginApi {
             joined = SetUtils.diff(current, previous);
             left = SetUtils.diff(previous, current);
             
-            this.previous = this.current;
-            this.current = new HashSet<>();
+            this.previous = new HashSet<>(this.current);
         }
        
         String joinedStr = StringUtils.joinStrings(joined);
