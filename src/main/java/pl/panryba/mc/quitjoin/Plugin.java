@@ -54,14 +54,18 @@ public class Plugin extends JavaPlugin implements Listener {
         }
         
         FileConfiguration config = getConfig();
-        String locale = config.getString("locale");
+        
+        String locale = config.getString("locale", "en");
+        if(locale == null || locale.isEmpty()) {
+            locale = "en";
+        }
         
         File localeFile = new File(getDataFolder(), "messages_" + locale + ".yml");
         FileConfiguration localeConfig = new YamlConfiguration();
         try {
             localeConfig.load(localeFile);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Plugin.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Plugin.class.getName()).log(Level.WARNING, "Could not find file: " + localeFile);
         } catch (IOException | InvalidConfigurationException ex) {
             Logger.getLogger(Plugin.class.getName()).log(Level.SEVERE, null, ex);
         }
