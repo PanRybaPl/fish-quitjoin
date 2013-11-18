@@ -15,6 +15,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -103,5 +104,10 @@ public class Plugin extends JavaPlugin implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         this.api.left(event.getPlayer().getName());
         event.setQuitMessage("");
+    }
+    
+    @EventHandler(priority= EventPriority.HIGHEST, ignoreCancelled=true)
+    public void onPlayerKick(PlayerKickEvent event) {
+        event.setLeaveMessage(null);
     }
 }
