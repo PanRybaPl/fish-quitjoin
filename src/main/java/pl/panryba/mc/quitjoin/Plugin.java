@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -76,12 +77,14 @@ public class Plugin extends JavaPlugin implements Listener {
         this.api = new PluginApi(new BroadcastOutput() {
             @Override
             public void broadcast(String message) {
-                Bukkit.broadcastMessage(message);
+                for(Player player : Bukkit.getOnlinePlayers()) {
+                    player.sendMessage(message);
+                }
             }
         }, strings);
         
         getServer().getPluginManager().registerEvents(this, this);
-        this.broadcastTask = getServer().getScheduler().runTaskTimer(this, new Plugin.BroadcastRunner(this.api), 20 * 30, 20 * 30);
+        this.broadcastTask = getServer().getScheduler().runTaskTimerAsynchronously(this, new Plugin.BroadcastRunner(this.api), 20 * 30, 20 * 30);
     }
 
     @Override
