@@ -4,8 +4,7 @@
  */
 package pl.panryba.mc.quitjoin;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,7 +15,7 @@ import static org.junit.Assert.*;
 public class StringUtilsTest {
     @Test
     public void testJoinStrings() {
-        Set<String> items = new HashSet<>();
+        ArrayList<String> items = new ArrayList<>();
         assertEquals("", StringUtils.joinStrings(items));
         
         items.add("test1");
